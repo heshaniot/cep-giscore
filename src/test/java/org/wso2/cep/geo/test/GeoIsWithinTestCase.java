@@ -51,13 +51,15 @@ public class GeoIsWithinTestCase {
 		siddhiManager.getSiddhiContext().setSiddhiExtensions(classList);
 		siddhiManager.defineStream("define stream gpsInputStream (lattitude double, longitude double, deviceid string) ");
 
-		withinTrueQueryReference =
-		                           siddhiManager.addQuery("from gpsInputStream[geo:iswithin(longitude, lattitude, \"{ 'type': 'Polygon', 'coordinates': [ [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ] ] }\")==true] "
+		withinTrueQueryReference = siddhiManager.addQuery("from gpsInputStream[geo:iswithin(longitude, lattitude,"
+                    +" \"{ 'type': 'Polygon', 'coordinates': [ [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],"
+                    +" [100.0, 1.0], [100.0, 0.0] ] ] }\")==true] "
 		                                                  + "select 1 as iswithin "
 		                                                  + "insert into gpsOutputStream;");
 
-		withinFalseQueryReference =
-		                            siddhiManager.addQuery("from gpsInputStream[geo:iswithin(lattitude, longitude, \"{ 'type': 'Polygon', 'coordinates': [ [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ] ] }\")==false] "
+		withinFalseQueryReference =siddhiManager.addQuery("from gpsInputStream[geo:iswithin(lattitude, longitude,"
+                    +" \"{ 'type': 'Polygon', 'coordinates': [ [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],"
+                    +" [100.0, 1.0], [100.0, 0.0] ] ] }\")==false] "
 		                                                   + "select 0 as iswithin "
 		                                                   + "insert into gpsOutputStream;");
 	}
