@@ -51,7 +51,8 @@ public class CRSTransformProcessorTestCase {
 		siddhiManager.defineStream("define stream gpsInputStream (lattitude double, longitude double) ");
 
 		queryReference =
-		                 siddhiManager.addQuery("from gpsInputStream#transform.geo:crstransform(\"EPSG:4326\",\"EPSG:25829\",lattitude,longitude) "
+		                 siddhiManager.addQuery("from gpsInputStream#transform.geo:crstransform"
+                                                + " (\"EPSG:4326\",\"EPSG:25829\",lattitude,longitude) "
 		                                        + "select lattitude,longitude "
 		                                        + "insert into geoStream;");
 	}
