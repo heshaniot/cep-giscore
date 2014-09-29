@@ -49,11 +49,11 @@ public class GeoIsWithin extends FunctionExecutor {
 			}
 
 			if (types[2] != Attribute.Type.STRING) {
-                log.error("polygon parameter should be a geojson feature string");
-				throw new QueryCreationException("polygon parameter should be a geojson feature string");
+                log.error("polygon parameter should be a GeoJSON feature string");
+				throw new QueryCreationException("polygon parameter should be a GeoJSON feature string");
 			}
 
-            //TODO : commment
+            //Attributes to the siddhi expressions are (lat,lon,polygon) and polygon is given as a constant
           	String strPolygon = (String) attributeExpressionExecutors.get(2).execute(null);
 			JsonObject jsonObject = new JsonParser().parse(strPolygon).getAsJsonObject();
 
