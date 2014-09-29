@@ -120,7 +120,10 @@ public class CRSTransformProcessor extends TransformProcessor {
     }
 
     @Override
-    //TODO : comments
+    /*
+    Get the parameters to the Siddhi Querrry Expression. First two are constants which does not come in the event
+    stream
+    */
     protected void init(Expression[] parameters, List<ExpressionExecutor> expressionExecutors,
                         StreamDefinition inStreamDefinition, StreamDefinition outStreamDefinition,
                         String elementId, SiddhiContext siddhiContext) {
