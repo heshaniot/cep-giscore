@@ -36,9 +36,6 @@ public class GeoIsWithin extends FunctionExecutor {
 	private GeometryFactory geometryFactory;
 	private Polygon polygon;
 
-	/**
-     * 
-     */
 	@Override
 	public void init(Attribute.Type[] types, SiddhiContext siddhiContext) {
 		if (types.length != 3) {
@@ -56,26 +53,25 @@ public class GeoIsWithin extends FunctionExecutor {
 				throw new QueryCreationException("polygon parameter should be a geojson feature string");
 			}
 
+            //TODO : commment
           	String strPolygon = (String) attributeExpressionExecutors.get(2).execute(null);
 			JsonObject jsonObject = new JsonParser().parse(strPolygon).getAsJsonObject();
 
 			geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
-			JsonArray jLocCoordinatesArray =
-			                                 (JsonArray) jsonObject.getAsJsonArray("coordinates")
-			                                                       .get(0);
+			JsonArray jLocCoordinatesArray = (JsonArray) jsonObject.getAsJsonArray("coordinates").get(0);
 			Coordinate[] coords = new Coordinate[jLocCoordinatesArray.size()];
 
 			for (int i = 0; i < jLocCoordinatesArray.size(); i++) {
 				JsonArray jArray = (JsonArray) jLocCoordinatesArray.get(i);
-				coords[i] =
-				            new Coordinate(Double.parseDouble(jArray.get(0).toString()),
+				coords[i] = new Coordinate(Double.parseDouble(jArray.get(0).toString()),
 				                           Double.parseDouble(jArray.get(1).toString()));
 			}
 
 			LinearRing ring = geometryFactory.createLinearRing(coords);
-			LinearRing holes[] = null; // use LinearRing[] to represent holes
-			polygon = geometryFactory.createPolygon(ring, holes);
+
+		    //create a polygon without holes
+			polygon = geometryFactory.createPolygon(ring, null);
 
 			if (log.isDebugEnabled()) {
 				log.debug("isWithin function initialized successfully with polygon " + polygon.toString());
@@ -83,8 +79,6 @@ public class GeoIsWithin extends FunctionExecutor {
 		}
 	}
 
-	/**
-	 * */
 	@Override
 	protected Object process(Object obj) {
 
@@ -93,7 +87,7 @@ public class GeoIsWithin extends FunctionExecutor {
 		double longitude = (Double) functionParams[0];
 		double latitude = (Double) functionParams[1];
 
-		/* Creating a point */
+		// Creating a point
 		Coordinate coord = new Coordinate(longitude, latitude);
 		Point point = geometryFactory.createPoint(coord);
 
@@ -106,7 +100,7 @@ public class GeoIsWithin extends FunctionExecutor {
 
 	public void destroy() {
 		if (log.isDebugEnabled()) {
-			log.debug("");
+			log.debug("GeoIsWithin function destroyed");
 		}
 	}
 }

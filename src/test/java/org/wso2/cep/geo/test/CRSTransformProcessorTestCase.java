@@ -36,42 +36,42 @@ import java.util.List;
 @RunWith(JUnit4.class)
 public class CRSTransformProcessorTestCase {
 
-	private SiddhiManager siddhiManager;
-	private String queryReference;
+    private SiddhiManager siddhiManager;
+    private String queryReference;
 
-	@Before
-	public void setUpEnviornment() {
-		SiddhiConfiguration conf = new SiddhiConfiguration();
-		List<Class> classList = new ArrayList<Class>();
-		classList.add(CRSTransformProcessor.class);
-		conf.setSiddhiExtensions(classList);
+    @Before
+    public void setUpEnvironment() {
+        SiddhiConfiguration conf = new SiddhiConfiguration();
+        List<Class> classList = new ArrayList<Class>();
+        classList.add(CRSTransformProcessor.class);
+        conf.setSiddhiExtensions(classList);
 
-		siddhiManager = new SiddhiManager();
-		siddhiManager.getSiddhiContext().setSiddhiExtensions(classList);
-		siddhiManager.defineStream("define stream gpsInputStream (lattitude double, longitude double) ");
+        siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().setSiddhiExtensions(classList);
+        siddhiManager.defineStream("define stream gpsInputStream (latitude double, longitude double) ");
 
-		queryReference =
-		                 siddhiManager.addQuery("from gpsInputStream#transform.geo:crstransform"
-                                                + " (\"EPSG:4326\",\"EPSG:25829\",lattitude,longitude) "
-		                                        + "select lattitude,longitude "
-		                                        + "insert into geoStream;");
-	}
+        queryReference =
+                siddhiManager.addQuery("from gpsInputStream#transform.geo:crstransform"
+                                       + " (\"EPSG:4326\",\"EPSG:25829\",latitude,longitude) "
+                                       + "select latitude,longitude insert into geoStream;");
+    }
 
-	@Test
-	public void testCRSTransform() throws InterruptedException {
-		siddhiManager.addCallback(queryReference, new QueryCallback() {
-			@Override
-			public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-				EventPrinter.print(timeStamp, inEvents, removeEvents);
-				Assert.assertTrue((Double) (inEvents[0].getData(0)) == 1505646.888236971);
-			}
-		});
-		InputHandler inputHandler = siddhiManager.getInputHandler("gpsInputStream");
-		inputHandler.send(new Object[] { 0.0, 0.0 });
-	}
+    @Test
+    public void testCRSTransform() throws InterruptedException {
+        siddhiManager.addCallback(queryReference, new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                Assert.assertTrue((Double) (inEvents[0].getData(0)) == 1505646.888236971);
+            }
+        });
 
-	@After
-	public void cleanUpEnviornment() {
-		siddhiManager.shutdown();
-	}
+        InputHandler inputHandler = siddhiManager.getInputHandler("gpsInputStream");
+        inputHandler.send(new Object[]{0.0, 0.0});
+    }
+
+    @After
+    public void cleanUpEnvironment() {
+        siddhiManager.shutdown();
+    }
 }

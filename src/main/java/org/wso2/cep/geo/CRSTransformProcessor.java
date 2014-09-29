@@ -47,103 +47,99 @@ import java.util.Map;
 public class CRSTransformProcessor extends TransformProcessor {
     Logger log = Logger.getLogger(CRSTransformProcessor.class);
 
-	private Map<String, Integer> paramPositions = new HashMap<String, Integer>();
-	private String sourcecrs, targetcrs;
-	private String latAttrName, longAttrName;
+    private Map<String, Integer> paramPositions = new HashMap<String, Integer>();
+    private String sourcecrs, targetcrs;
+    private String latAttrName, longAttrName;
 
-	public CRSTransformProcessor() {
-		this.outStreamDefinition =
-		                           new StreamDefinition().name("geoStream")
-		                                                 .attribute("lattitude",
-		                                                            Attribute.Type.DOUBLE)
-		                                                 .attribute("longitude",
-		                                                            Attribute.Type.DOUBLE);
-	}
+    public CRSTransformProcessor() {
+        this.outStreamDefinition =
+                new StreamDefinition().name("geoStream").attribute("latitude",Attribute.Type.DOUBLE)
+                        .attribute("longitude", Attribute.Type.DOUBLE);
+    }
 
-	@Override
-	protected InStream processEvent(InEvent inEvent) {
+    @Override
+    protected InStream processEvent(InEvent inEvent) {
 
-		double sourceLat = (Double) inEvent.getData(paramPositions.get(latAttrName));
-		double sourceLon = (Double) inEvent.getData(paramPositions.get(longAttrName));
+        double sourceLat = (Double) inEvent.getData(paramPositions.get(latAttrName));
+        double sourceLon = (Double) inEvent.getData(paramPositions.get(longAttrName));
 
-		CoordinateReferenceSystem sourceCrs = null;
-		CoordinateReferenceSystem targetCrs = null;
+        CoordinateReferenceSystem sourceCrs = null;
+        CoordinateReferenceSystem targetCrs = null;
 
-		try {
-			sourceCrs = CRS.decode(sourcecrs);
-			targetCrs = CRS.decode(targetcrs);
-		} catch (NoSuchAuthorityCodeException e) {
-            log.error("Cannot decode Source and Target CRS",e);
+        try {
+            sourceCrs = CRS.decode(sourcecrs);
+            targetCrs = CRS.decode(targetcrs);
+        } catch (NoSuchAuthorityCodeException e) {
+            log.error("Cannot decode Source and Target CRS", e);
         } catch (FactoryException e) {
-            log.error("Cannot decode source and Target CRS",e);
-		}
+            log.error("Cannot decode source and Target CRS", e);
+        }
 
-		Coordinate sourceCoordinate = new Coordinate(sourceLat, sourceLon);
-		Coordinate targetCoordinate = new Coordinate();
+        Coordinate sourceCoordinate = new Coordinate(sourceLat, sourceLon);
+        Coordinate targetCoordinate = new Coordinate();
 
-		boolean lenient = true;
-		MathTransform mathTransform = null;
+        MathTransform mathTransform;
 
-		try {
-			mathTransform = CRS.findMathTransform(sourceCrs, targetCrs, lenient);
+        try {
+            mathTransform = CRS.findMathTransform(sourceCrs, targetCrs, true);
             JTS.transform(sourceCoordinate, targetCoordinate, mathTransform);
-		} catch (FactoryException e) {
-            log.error("Cannot find a math transform from Source CRS to Target CRS",e);
-		}
-        catch (TransformException e) {
-            log.error("Cannot transform from " + sourcecrs + " to " + targetcrs,e);
-		}
+        } catch (FactoryException e) {
+            log.error("Cannot find a math transform from Source CRS to Target CRS", e);
+        } catch (TransformException e) {
+            log.error("Cannot transform from " + sourcecrs + " to " + targetcrs, e);
+        }
 
-		double targetLat = targetCoordinate.x;
-		double targetLon = targetCoordinate.y;
-		Object[] data = new Object[] { targetLat, targetLon };
+        double targetLat = targetCoordinate.x;
+        double targetLon = targetCoordinate.y;
+        Object[] data = new Object[]{targetLat, targetLon};
 
-		return new InEvent(inEvent.getStreamId(), System.currentTimeMillis(), data);
-	}
+        return new InEvent(inEvent.getStreamId(), System.currentTimeMillis(), data);
+    }
 
-	@Override
-	protected InStream processEvent(InListEvent inListEvent) {
-		InListEvent transformedListEvent = new InListEvent();
-		for (Event event : inListEvent.getEvents()) {
-			if (event instanceof InEvent) {
-				transformedListEvent.addEvent((Event) processEvent((InEvent) event));
-			}
-		}
-		return transformedListEvent;
-	}
+    @Override
+    protected InStream processEvent(InListEvent inListEvent) {
+        InListEvent transformedListEvent = new InListEvent();
+        for (Event event : inListEvent.getEvents()) {
+            if (event instanceof InEvent) {
+                transformedListEvent.addEvent((Event) processEvent((InEvent) event));
+            }
+        }
+        return transformedListEvent;
+    }
 
-	@Override
-	protected Object[] currentState() {
-		return new Object[] { paramPositions };
-	}
+    @Override
+    protected Object[] currentState() {
+        return new Object[]{paramPositions};
+    }
 
-	@Override
-	protected void restoreState(Object[] objects) {
-		if (objects.length > 0 && objects[0] instanceof Map) {
-			paramPositions = (Map<String, Integer>) objects[0];
-		}
-	}
+    @Override
+    protected void restoreState(Object[] objects) {
+        if (objects.length > 0 && objects[0] instanceof Map) {
+            paramPositions = (Map<String, Integer>) objects[0];
+        }
+    }
 
-	@Override
-	protected void init(Expression[] parameters, List<ExpressionExecutor> expressionExecutors,
-	                    StreamDefinition inStreamDefinition, StreamDefinition outStreamDefinition,
-	                    String elementId, SiddhiContext siddhiContext) {
+    @Override
+    //TODO : comments
+    protected void init(Expression[] parameters, List<ExpressionExecutor> expressionExecutors,
+                        StreamDefinition inStreamDefinition, StreamDefinition outStreamDefinition,
+                        String elementId, SiddhiContext siddhiContext) {
 
-		for (Expression parameter : parameters) {
-			if (parameter instanceof Variable) {
-				Variable var = (Variable) parameter;
-				String attributeName = var.getAttributeName();
-				paramPositions.put(attributeName,
-				                   inStreamDefinition.getAttributePosition(attributeName));
-			}
-		}
-		sourcecrs = ((StringConstant) parameters[0]).getValue();
-		targetcrs = ((StringConstant) parameters[1]).getValue();
-		latAttrName = ((Variable) parameters[2]).getAttributeName();
-		longAttrName = ((Variable) parameters[3]).getAttributeName();
+        for (Expression parameter : parameters) {
+            if (parameter instanceof Variable) {
+                Variable var = (Variable) parameter;
+                String attributeName = var.getAttributeName();
+                paramPositions.put(attributeName, inStreamDefinition.getAttributePosition(attributeName));
+            }
+        }
 
-	}
+        sourcecrs = ((StringConstant) parameters[0]).getValue();
+        targetcrs = ((StringConstant) parameters[1]).getValue();
+        latAttrName = ((Variable) parameters[2]).getAttributeName();
+        longAttrName = ((Variable) parameters[3]).getAttributeName();
 
-	public void destroy() {
-	}
+    }
+
+    public void destroy() {
+    }
 }

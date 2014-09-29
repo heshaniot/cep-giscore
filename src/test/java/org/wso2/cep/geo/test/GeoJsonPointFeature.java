@@ -10,10 +10,6 @@ public class GeoJsonPointFeature {
 	private GeoJsonPoint geometry;
 	private Map<String, Object> properties = new HashMap<String, Object>();
 
-	public GeoJsonPointFeature() {
-
-	}
-
 	public GeoJsonPoint getGeometry() {
 		return geometry;
 	}
@@ -31,8 +27,8 @@ public class GeoJsonPointFeature {
 	}
 
 	public GeoJsonPointFeature(String deviceId, String timeStamp) {
-		properties.put("deviceid", deviceId);
-		properties.put("timestamp", timeStamp);
+		properties.put("deviceId", deviceId);
+		properties.put("timeStamp", timeStamp);
 	}
 
 	public void setProperty(String key, String value) {

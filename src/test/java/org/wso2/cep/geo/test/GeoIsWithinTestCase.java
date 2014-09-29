@@ -41,7 +41,7 @@ public class GeoIsWithinTestCase {
 	private String withinFalseQueryReference;
 
 	@Before
-	public void setUpEnviornment() {
+	public void setUpEnvironment() {
 		SiddhiConfiguration conf = new SiddhiConfiguration();
 		List<Class> classList = new ArrayList<Class>();
 		classList.add(GeoIsWithin.class);
@@ -49,19 +49,15 @@ public class GeoIsWithinTestCase {
 
 		siddhiManager = new SiddhiManager();
 		siddhiManager.getSiddhiContext().setSiddhiExtensions(classList);
-		siddhiManager.defineStream("define stream gpsInputStream (lattitude double, longitude double, deviceid string)");
+		siddhiManager.defineStream("define stream gpsInputStream (latitude double, longitude double, deviceid string)");
 
-		withinTrueQueryReference = siddhiManager.addQuery("from gpsInputStream[geo:iswithin(longitude, lattitude,"
+		withinTrueQueryReference = siddhiManager.addQuery("from gpsInputStream[geo:iswithin(longitude, latitude,"
                     +" \"{ 'type': 'Polygon', 'coordinates': [ [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],"
-                    +" [100.0, 1.0], [100.0, 0.0] ] ] }\")==true] "
-		                                                  + "select 1 as iswithin "
-		                                                  + "insert into gpsOutputStream;");
+                    +" [100.0, 1.0], [100.0, 0.0] ] ] }\")==true] select 1 as iswithin insert into gpsOutputStream;");
 
-		withinFalseQueryReference =siddhiManager.addQuery("from gpsInputStream[geo:iswithin(lattitude, longitude,"
+		withinFalseQueryReference =siddhiManager.addQuery("from gpsInputStream[geo:iswithin(latitude, longitude,"
                     +" \"{ 'type': 'Polygon', 'coordinates': [ [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],"
-                    +" [100.0, 1.0], [100.0, 0.0] ] ] }\")==false] "
-		                                                   + "select 0 as iswithin "
-		                                                   + "insert into gpsOutputStream;");
+                    +" [100.0, 1.0], [100.0, 0.0] ] ] }\")==false] select 0 as iswithin insert into gpsOutputStream;");
 	}
 
 	@Test
@@ -93,7 +89,7 @@ public class GeoIsWithinTestCase {
 	}
 
 	@After
-	public void cleanUpEnviornment() {
+	public void cleanUpEnvironment() {
 		siddhiManager.shutdown();
 	}
 }
